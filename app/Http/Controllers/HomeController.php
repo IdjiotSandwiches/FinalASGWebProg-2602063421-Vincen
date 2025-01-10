@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PostImage;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
@@ -13,7 +16,7 @@ class HomeController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
+        
     }
 
     /**
@@ -23,6 +26,31 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        $posts = $this->getPostImage();
+        return view('home', compact('posts'));
+    }
+
+    public function getPostImage()
+    {
+        $user = Auth::user();
+
+        $posts = PostImage::with(['user:id,name,interest', 'user.friend:id,name'])
+            ->when($user, function ($query) use ($user) {
+                return $query->whereIn('theme', json_decode($user->interest));
+            })
+            ->select(['id','post_image_url','user_id'])
+            ->paginate(10, ['id','post_image_url','user_id'])
+            ->through(function ($post) {
+                $friendIds = $post->user->friend->pluck('id');
+                $post->notFriend = $post->whereIn('user_id', $friendIds)
+                    ->get()
+                    ->isEmpty();
+                $post->interest = json_decode($post->user->interest);
+                $post->interest = implode(', ', $post->interest);
+                return $post;
+            });
+        dd($posts);
+
+        return $posts;
     }
 }

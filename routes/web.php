@@ -2,16 +2,15 @@
 
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Auth::routes();
 
-Route::middleware(['auth'])
+Route::middleware(['auth','pay'])
     ->prefix('payment')
     ->name('payment.')
     ->controller(PaymentController::class)
@@ -20,6 +19,11 @@ Route::middleware(['auth'])
         Route::put('/update', 'update')->name('update');
     });
 
-Route::middleware(['auth','pay'])->group(function () {
-    Route::get('/home', [HomeController::class, 'index'])->name('home');
+Route::middleware(['auth'])->group(function () {
+    Route::prefix('profile')
+        ->name('profile.')
+        ->controller(ProfileController::class)
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+        });
 });

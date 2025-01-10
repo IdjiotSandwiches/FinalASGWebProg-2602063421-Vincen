@@ -17,9 +17,8 @@ class RedirectIfPaid
     public function handle(Request $request, Closure $next): Response
     {
         $user = Auth::user();
-        if ($user && !is_null($user->wallet)) return $next($request);
-        
-        return to_route('payment.index');
+        if ($user && is_null($user->wallet)) return $next($request);
 
+        return to_route('home');
     }
 }
