@@ -10,16 +10,6 @@ use Illuminate\Support\Facades\Auth;
 class HomeController extends Controller
 {
     /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        
-    }
-
-    /**
      * Show the application dashboard.
      *
      * @return \Illuminate\Contracts\Support\Renderable
@@ -33,9 +23,12 @@ class HomeController extends Controller
     public function getPostImage()
     {
         $user = Auth::user();
-        $user = User::with('friend')->find($user->id);
-        $friendIds = $user->friend->pluck('id')->toArray();
-        $friendIds[]  = $user->id;
+        $friendIds = [];
+        if ($user) {
+            $user = User::with('friend')->find($user->id);
+            $friendIds = $user->friend->pluck('id')->toArray();
+            $friendIds[]  = $user->id;
+        }
 
         $posts = PostImage::with(['user:id,name,interest', 'user.friend'])
             ->when($user, function ($query) use ($user) {
@@ -43,8 +36,8 @@ class HomeController extends Controller
             })
             ->select(['id','post_image_url','user_id'])
             ->paginate(10, ['id','post_image_url','user_id'])
-            ->through(function ($post) use ($friendIds) {
-                $post->notFriend = !in_array($post->user_id, $friendIds);
+            ->through(function ($post) use ($friendIds, $user) {
+                $post->notFriend = $user ? !in_array($post->user_id, $friendIds) : null;
                 $post->interest = json_decode($post->user->interest);
                 $post->interest = implode(', ', $post->interest);
                 return $post;
