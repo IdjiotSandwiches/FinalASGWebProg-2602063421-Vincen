@@ -10,6 +10,11 @@
         </div>
         <div class="col-md-7">
             <h4 class="fw-semibold mb-2">{{ __('Friend List') }}</h4>
+            @if (Session::has('status'))
+                <div class="alert alert-{{ Session::get('status') }}" role="alert">
+                    {{ Session::get('message') }}
+                </div>
+            @endif
             @foreach ($friends as $friend)
                 @include('component.__friend-card', ['friend' => $friend])
             @endforeach

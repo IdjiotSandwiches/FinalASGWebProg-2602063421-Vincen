@@ -33,23 +33,22 @@ class HomeController extends Controller
     public function getPostImage()
     {
         $user = Auth::user();
+        $user = User::with('friend')->find($user->id);
+        $friendIds = $user->friend->pluck('id')->toArray();
+        $friendIds[]  = $user->id;
 
-        $posts = PostImage::with(['user:id,name,interest', 'user.friend:id,name'])
+        $posts = PostImage::with(['user:id,name,interest', 'user.friend'])
             ->when($user, function ($query) use ($user) {
                 return $query->whereIn('theme', json_decode($user->interest));
             })
             ->select(['id','post_image_url','user_id'])
             ->paginate(10, ['id','post_image_url','user_id'])
-            ->through(function ($post) {
-                $friendIds = $post->user->friend->pluck('id');
-                $post->notFriend = $post->whereIn('user_id', $friendIds)
-                    ->get()
-                    ->isEmpty();
+            ->through(function ($post) use ($friendIds) {
+                $post->notFriend = !in_array($post->user_id, $friendIds);
                 $post->interest = json_decode($post->user->interest);
                 $post->interest = implode(', ', $post->interest);
                 return $post;
             });
-        dd($posts);
 
         return $posts;
     }

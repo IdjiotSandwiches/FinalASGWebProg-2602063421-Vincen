@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FriendController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
@@ -25,5 +26,13 @@ Route::middleware(['auth'])->group(function () {
         ->controller(ProfileController::class)
         ->group(function () {
             Route::get('/', 'index')->name('index');
+        });
+
+    Route::prefix('friend')
+        ->name('friend.')
+        ->controller(FriendController::class)
+        ->group(function () {
+            Route::post('/create/{id}', 'create')->name('create');
+            Route::delete('/delete/{id}', 'delete')->name('delete');
         });
 });
