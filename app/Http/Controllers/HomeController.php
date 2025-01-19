@@ -30,12 +30,11 @@ class HomeController extends Controller
             $friendIds[]  = $user->id;
         }
 
-        $posts = PostImage::with(['user:id,name,interest', 'user.friend'])
+        $posts = PostImage::with(['user.friend'])
             ->when($user, function ($query) use ($user) {
                 return $query->whereIn('theme', json_decode($user->interest));
             })
-            ->select(['id','post_image_url','user_id'])
-            ->paginate(10, ['id','post_image_url','user_id'])
+            ->paginate(10)
             ->through(function ($post) use ($friendIds, $user) {
                 $post->notFriend = $user ? !in_array($post->user_id, $friendIds) : null;
                 $post->interest = json_decode($post->user->interest);

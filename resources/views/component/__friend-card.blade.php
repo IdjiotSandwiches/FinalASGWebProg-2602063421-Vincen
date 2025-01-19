@@ -8,6 +8,9 @@
             <h5 class="fw-semibold">{{ $friend->name }}</h5>
             <p>{{ implode(', ', json_decode($friend->interest)) }}</p>
         </div>
-        <button type="submit" class="col-4 col-md-3 btn btn-danger h-100">{{ __('Remove') }}</button>
+        @if ($friend->followed)
+            <a class="btn btn-primary h-100">{{ __('Message') }}</a>
+        @endif
+        <button type="submit" class="btn btn-danger h-100">{{ __('Remove') }}</button>
     </form>
 </div>

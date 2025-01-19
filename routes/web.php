@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\FriendController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LocaleController;
@@ -36,5 +37,13 @@ Route::middleware(['auth'])->group(function () {
         ->group(function () {
             Route::post('/create/{id}', 'create')->name('create');
             Route::delete('/delete/{id}', 'delete')->name('delete');
+        });
+
+    Route::prefix('chat')
+        ->name('chat.')
+        ->controller(ChatController::class)
+        ->group(function () {
+            Route::get('/{id}', 'index')->name('index');
+            Route::post('/send', 'sendMessage')->name('send');
         });
 });

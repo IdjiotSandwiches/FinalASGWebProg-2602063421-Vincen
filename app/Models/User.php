@@ -53,4 +53,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(PostImage::class);
     }
+
+    public function chat()
+    {
+        return $this->hasMany(Chat::class);
+    }
 }
